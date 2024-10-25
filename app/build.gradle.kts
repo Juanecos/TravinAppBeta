@@ -55,6 +55,16 @@ dependencies {
     implementation(libs.androidx.foundation)
     implementation(libs.androidx.runtime)
 
+    implementation(libs.room.runtime)
+    annotationProcessor(libs.room.compiler)
+
+    //annotationProcessor(libs.androidx.room.compiler)
+
+    //ksp(libs.androidx.room.compiler)
+
+
+
+
     implementation(libs.androidx.ui.text)
     implementation(libs.gson)
     implementation(libs.androidx.navigation.compose)
