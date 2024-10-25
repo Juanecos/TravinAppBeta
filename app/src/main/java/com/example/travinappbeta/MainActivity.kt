@@ -1,7 +1,5 @@
 package com.example.travinappbeta
 
-import android.app.FragmentManager.BackStackEntry
-
 import com.google.gson.Gson
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -19,7 +17,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,7 +24,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 
 
@@ -42,15 +38,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -63,11 +55,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.input.*
 import androidx.compose.ui.text.input.KeyboardType
 
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.travinappbeta.ui.theme.TravinAppBetaTheme
 
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -75,10 +65,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
 
-data class DatosUsuario(
+data class Usuario(
     val nombre: String,
     val celular: String,
-    val peso: String
+    val pesoa: String,
+    val pesob: String
 )
 
 
@@ -210,8 +201,11 @@ fun PrincipalPantalla(selectedTab: String ) {
                         selected = selectedTab == "new",
                         label = { Text("Nueva prueba") },
                         icon = { Icon(Icons.Filled.Star, contentDescription = null) },
-                        onClick = {navController2.navigate("new")
+                        onClick = {
+
+                            navController2.navigate("new")
                             selectedT = "new"
+
                         }
                     )
                     NavigationBarItem(
@@ -247,9 +241,10 @@ fun PrincipalPantalla(selectedTab: String ) {
 
             NavHost(navController = navController2, startDestination = "new") {
                 composable("new") { NewData(navController2) }
-                composable("result/{data}") { backStackEntry ->
-                    val datos = backStackEntry.arguments?.getString("data") ?: ""
-                    Result(name = datos)
+                composable("result/{datosJson}") { backStackEntry ->
+                    val datosJson = backStackEntry.arguments?.getString("datosJson") ?: ""
+                    val datosMapa: Map<*, *>? = Gson().fromJson(datosJson, Map::class.java)
+                    Result(data = datosMapa)
                 }
                 composable("register") { Register( ) }
                 composable("more") { More() }
@@ -305,11 +300,15 @@ fun NewData(navController2: NavHostController){
 
             TextField(
                 value = celular,
-                onValueChange = { celular = it },
+                onValueChange = { input ->
+                    // Filtrar el input para que solo contenga dígitos
+                    val filteredInput = input.filter { it.isDigit() }
+                    // Asignar el valor filtrado a la variable
+                    celular = filteredInput
+                },
                 label = { Text("Celular") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                //keyboardActions = KeyboardActions.() convertir la accion de enter a pasar al siguiente campo
             )
 
         }
@@ -326,7 +325,14 @@ fun NewData(navController2: NavHostController){
             Text(text= "Peso antes", fontSize = 15.sp,modifier = Modifier.size(100.dp,25.dp))
             TextField(
                 value = pesoa,
-                onValueChange = { pesoa = it },
+                onValueChange = { input ->
+                    // Filtrar para permitir solo dígitos y un solo punto decimal
+                    val filteredInput = input.filter { it.isDigit() || it == '.' }
+                    // Verificar si hay más de un punto decimal
+                    if (filteredInput.count { it == '.' } <= 1) {
+                        pesoa = filteredInput
+                    }
+                },
                 label = { Text("Peso (kg)") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
@@ -341,7 +347,14 @@ fun NewData(navController2: NavHostController){
             Text(text= "Peso después", fontSize = 15.sp, modifier = Modifier.size(100.dp,25.dp))
             TextField(
                 value = pesob,
-                onValueChange = { pesob = it },
+                onValueChange = { input ->
+                    // Filtrar para permitir solo dígitos y un solo punto decimal
+                    val filteredInput = input.filter { it.isDigit() || it == '.' }
+                    // Verificar si hay más de un punto decimal
+                    if (filteredInput.count { it == '.' } <= 1) {
+                        pesob = filteredInput
+                    }
+                },
                 label = { Text("Peso (kg)") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
@@ -388,17 +401,79 @@ fun NewData(navController2: NavHostController){
 
     }
 }
+// estas funciones me da el numero ya convertido
+fun convertDouble(numero:String): Double {
+    return numero.toDoubleOrNull() ?: 0.0
+
+}
+fun convertInt(numero:String): Int? {
+    val num = numero.toIntOrNull()
+    return num
+}
+
+//esta funcion retorna la variable dandole la clave- key de un json map
+fun verify(data: Map<*, *>?, key : String): String{
+    val  valor1 = data?.get("$key") as? String
+    if (valor1 != null){
+        return valor1
+    }else{
+        return ""
+    }
+}
 @Composable
-fun Result(name: String){
-    Box(
-        modifier = Modifier
-            .padding(1.dp),
-    )
+fun Result(data: Map<*, *>?){
+
+
+    var nombre = verify(data= data, key = "nombre")
+    var celular = verify(data= data, key = "celular")
+    var peso1 = verify(data= data, key = "pesoa")
+    var peso2 = verify(data= data, key = "pesob")
+    // convertir peso a double
+    var peso1D = convertDouble(peso1)
+    var peso2D = convertDouble(peso2)
+
+
+    //((peso inicial- peso final)/ peso inicial)*100
+    val indicep : Double = ((peso1D - peso2D)/peso1D)*100.00F
+    val indice2 = (Math.round(indicep*100))/100.00F
+
+
+   // Text("$nombre , $celular , $peso1D , $peso2D, indice de perdida de peso en $indice2 %")
+    var perdida: String
+    when {
+        indice2 < 0.0 -> perdida ="Incorrecto"
+        indice2 in 0.0.. 0.99 -> perdida = "0-1%"
+        indice2 in 1.0..2.0 -> perdida = "1-2%"
+        else -> perdida = " mayor al 2%"
+    }
+    var recomendacion: String
+
+    if (perdida == "0-1%"){
+        recomendacion = "pérdida de peso dentro de lo esperable, sin impacto sobre el rendimiento."
+    }else if (perdida == "1-2%"){
+        recomendacion = "pérdida de peso aceptable, con impacto leve sobre el rendimiento"
+    } else {
+        recomendacion= "pérdida de peso desaconsejada, con impacto negativo sobre el rendimiento"
+    }
+
+
+    if ( perdida!= "Incorrecto"){
+        Column {
+            Text(text = "Tu perdida de peso fue de: $indice2")
+            Text(text="Te encuentras dentro del $perdida, $recomendacion",
+                fontSize = 12.sp)
+        }
+
+    } else
     {
-        Button(onClick = {}) {
-            Text(text = "Result $name",color= Color.Black)
+        Column {
+
+            Text("Recuerda que el peso inicial es mayor al peso despues de la actividad fisica")
         }
     }
+
+
+
 }
 
 @Composable
@@ -409,9 +484,16 @@ fun Register(){
 fun More(){
     Text("More, the QR here")
 }
-//@Preview(showBackground = true)
-@Preview
 @Composable
-fun nowpreview(){
-    PrincipalPantalla("new")
+fun test(){
+    var indice2 = (Math.round(3.33333*100))/100.00F
+
+    Column {
+        Text("$indice2", modifier = Modifier.padding(16.dp))
+    }
 }
+//@Preview(showBackground = true)
+//@Composable
+//fun nowpreview(){
+//    test()
+//}
