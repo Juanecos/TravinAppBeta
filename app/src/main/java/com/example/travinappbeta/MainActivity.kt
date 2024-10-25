@@ -65,12 +65,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
 
-data class Usuario(
-    val nombre: String,
-    val celular: String,
-    val pesoa: String,
-    val pesob: String
-)
 
 
 
@@ -218,7 +212,7 @@ fun PrincipalPantalla(selectedTab: String ) {
                     )
                     NavigationBarItem(
                         selected = selectedTab == "more",
-                        label = { Text("$selectedT") },
+                        label = { Text(selectedT) },
                         icon = { Icon(Icons.Filled.Info, contentDescription = null) },
                         onClick = {navController2.navigate("more")
                             selectedT = "more"
@@ -377,13 +371,13 @@ fun NewData(navController2: NavHostController){
                 //var ty = mutableMapOf("llave" : "valor")
                 //Text("$ty")
 
-                var data = mutableMapOf(
+                val data = mutableMapOf(
                     "nombre" to nombre,
                     "celular" to celular,
                     "pesoa" to pesoa,
                     "pesob" to pesob
                 )
-                var datosJson = Gson().toJson(data)
+                val datosJson = Gson().toJson(data)
 
 
 
@@ -401,36 +395,27 @@ fun NewData(navController2: NavHostController){
 
     }
 }
-// estas funciones me da el numero ya convertido
+// esta funcion me da el numero ya convertido
 fun convertDouble(numero:String): Double {
     return numero.toDoubleOrNull() ?: 0.0
 
 }
-fun convertInt(numero:String): Int? {
-    val num = numero.toIntOrNull()
-    return num
-}
 
 //esta funcion retorna la variable dandole la clave- key de un json map
-fun verify(data: Map<*, *>?, key : String): String{
-    val  valor1 = data?.get("$key") as? String
-    if (valor1 != null){
-        return valor1
-    }else{
-        return ""
-    }
+fun verify(data: Map<*, *>?, key : String): String {
+    return data?.get(key) as? String ?: ""
 }
 @Composable
 fun Result(data: Map<*, *>?){
 
 
-    var nombre = verify(data= data, key = "nombre")
-    var celular = verify(data= data, key = "celular")
-    var peso1 = verify(data= data, key = "pesoa")
-    var peso2 = verify(data= data, key = "pesob")
+    val nombre = verify(data= data, key = "nombre")
+    val celular = verify(data= data, key = "celular")
+    val peso1 = verify(data= data, key = "pesoa")
+    val peso2 = verify(data= data, key = "pesob")
     // convertir peso a double
-    var peso1D = convertDouble(peso1)
-    var peso2D = convertDouble(peso2)
+    val peso1D = convertDouble(peso1)
+    val peso2D = convertDouble(peso2)
 
 
     //((peso inicial- peso final)/ peso inicial)*100
@@ -438,22 +423,24 @@ fun Result(data: Map<*, *>?){
     val indice2 = (Math.round(indicep*100))/100.00F
 
 
-   // Text("$nombre , $celular , $peso1D , $peso2D, indice de perdida de peso en $indice2 %")
-    var perdida: String
-    when {
-        indice2 < 0.0 -> perdida ="Incorrecto"
-        indice2 in 0.0.. 0.99 -> perdida = "0-1%"
-        indice2 in 1.0..2.0 -> perdida = "1-2%"
-        else -> perdida = " mayor al 2%"
+    Text("$nombre , $celular , $peso1D , $peso2D, indice de perdida de peso en $indice2 %")
+    val perdida: String = when {
+        indice2 < 0.0 -> "Incorrecto"
+        indice2 in 0.0.. 0.99 -> "0-1%"
+        indice2 in 1.0..2.0 -> "1-2%"
+        else -> " mayor al 2%"
     }
-    var recomendacion: String
 
-    if (perdida == "0-1%"){
-        recomendacion = "pérdida de peso dentro de lo esperable, sin impacto sobre el rendimiento."
-    }else if (perdida == "1-2%"){
-        recomendacion = "pérdida de peso aceptable, con impacto leve sobre el rendimiento"
-    } else {
-        recomendacion= "pérdida de peso desaconsejada, con impacto negativo sobre el rendimiento"
+    val recomendacion: String = when (perdida) {
+        "0-1%" -> {
+            "pérdida de peso dentro de lo esperable, sin impacto sobre el rendimiento."
+        }
+        "1-2%" -> {
+            "pérdida de peso aceptable, con impacto leve sobre el rendimiento"
+        }
+        else -> {
+            "pérdida de peso desaconsejada, con impacto negativo sobre el rendimiento"
+        }
     }
 
 
@@ -485,15 +472,16 @@ fun More(){
     Text("More, the QR here")
 }
 @Composable
-fun test(){
-    var indice2 = (Math.round(3.33333*100))/100.00F
+fun Test(){
+    //ver como hacer el redondeo de 2 cifras
+    val indice2 = (Math.round(3.33333*100))/100.00F
 
     Column {
         Text("$indice2", modifier = Modifier.padding(16.dp))
     }
 }
-//@Preview(showBackground = true)
-//@Composable
-//fun nowpreview(){
-//    test()
-//}
+@Preview(showBackground = true)
+@Composable
+fun Nowpreview(){
+    Test()
+}
