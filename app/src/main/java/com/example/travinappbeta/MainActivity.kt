@@ -65,26 +65,37 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
 
+import androidx.activity.viewModels
+import androidx.compose.runtime.livedata.observeAsState
+
+import androidx.lifecycle.Observer
+import com.example.travinappbeta.data.User
+import com.example.travinappbeta.data.UserViewModel
+
+
 
 
 
 
 class MainActivity : ComponentActivity() {
+
+    private val userViewModel: UserViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppNavigator()
+            AppNavigator(userViewModel = userViewModel)
         }
     }
 }
 
 @Composable
-fun AppNavigator() {
+fun AppNavigator(userViewModel: UserViewModel) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "inicio") {
         composable("inicio") { InicioPantalla(navController) }
-        composable("principal") { PrincipalPantalla("") }
+        composable("principal") { PrincipalPantalla("",userViewModel) }
     }
 }
 @Composable
@@ -165,7 +176,7 @@ fun InicioPantalla(navController: NavHostController){
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PrincipalPantalla(selectedTab: String ) {
+fun PrincipalPantalla(selectedTab: String , userViewModel: UserViewModel) {
     val navController2 = rememberNavController()
     var selectedT = selectedTab
     Scaffold(
@@ -234,13 +245,13 @@ fun PrincipalPantalla(selectedTab: String ) {
 
 
             NavHost(navController = navController2, startDestination = "new") {
-                composable("new") { NewData(navController2) }
+                composable("new") { NewData(navController2,userViewModel) }
                 composable("result/{datosJson}") { backStackEntry ->
                     val datosJson = backStackEntry.arguments?.getString("datosJson") ?: ""
                     val datosMapa: Map<*, *>? = Gson().fromJson(datosJson, Map::class.java)
                     Result(data = datosMapa)
                 }
-                composable("register") { Register( ) }
+                composable("register") { Register(userViewModel) }
                 composable("more") { More() }
 
             }
@@ -253,7 +264,7 @@ fun PrincipalPantalla(selectedTab: String ) {
 
 
 @Composable
-fun NewData(navController2: NavHostController){
+fun NewData(navController2: NavHostController, userViewModel: UserViewModel){
 
     var nombre by remember { mutableStateOf("") }
     var celular by remember { mutableStateOf("") }
@@ -362,14 +373,20 @@ fun NewData(navController2: NavHostController){
 
         Button(
             onClick = {
-                //val datosUsuario = DatosUsuario(nombre, celular, peso)
-                //val datosUsuarioJson = Gson().toJson(datosUsuario)
-                //navController2.navigate("result/$nombre")
-                //val datosUsuario = DatosUsuario(nombre, celular, peso)
-                //val datosUsuarioJson = Gson().toJson(datosUsuario)
-                //navController2.navigate("result/$datosUsuarioJson")
-                //var ty = mutableMapOf("llave" : "valor")
-                //Text("$ty")
+                val pesoAntes = convertDouble(pesoa)
+                val pesoDespues = convertDouble(pesob)
+
+                // Crear un objeto User
+                val newUser = User(
+                    firstName = nombre,
+                    cellphone = celular,
+                    beforew = pesoAntes,
+                    afterw = pesoDespues
+                )
+
+                // Guardar el usuario en la base de datos
+                userViewModel.addUser(newUser)
+
 
                 val data = mutableMapOf(
                     "nombre" to nombre,
@@ -423,7 +440,7 @@ fun Result(data: Map<*, *>?){
     val indice2 = (Math.round(indicep*100))/100.00F
 
 
-    Text("$nombre , $celular , $peso1D , $peso2D, indice de perdida de peso en $indice2 %")
+    //Text("$nombre , $celular , $peso1D , $peso2D, indice de perdida de peso en $indice2 %")
     val perdida: String = when {
         indice2 < 0.0 -> "Incorrecto"
         indice2 in 0.0.. 0.99 -> "0-1%"
@@ -464,9 +481,56 @@ fun Result(data: Map<*, *>?){
 }
 
 @Composable
-fun Register(){
-    Text("registros de database here")
+fun Register(userViewModel: UserViewModel) {
+    // Observar los datos de la base de datos como un estado
+    val userList by userViewModel.readAllData.observeAsState(initial = emptyList())
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Registros de la Base de Datos:",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Mostrar la lista de usuarios
+        if (userList.isEmpty()) {
+            Text("No hay registros disponibles.")
+        } else {
+            userList.forEach { user ->
+                UserRow(user)
+            }
+        }
+    }
 }
+
+@Composable
+fun UserRow(user: User) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .background(Color.LightGray, shape = RoundedCornerShape(8.dp))
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column {
+            Text("Nombre: ${user.firstName}")
+            Text("Celular: ${user.cellphone}")
+            Text("Peso Antes: ${user.beforew} kg")
+            Text("Peso Después: ${user.afterw} kg")
+        }
+    }
+}
+
 @Composable
 fun More(){
     Text("More, the QR here")

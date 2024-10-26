@@ -58,11 +58,23 @@ dependencies {
     implementation(libs.androidx.runtime)
 
     implementation(libs.room.runtime)
+    implementation(libs.androidx.runtime.livedata)
     annotationProcessor(libs.room.compiler)
 
     ksp(libs.room.compiler)
     // kotlin  extension opcional
     implementation(libs.room.ktx)
+
+    // Uso de observeAsState
+    implementation (libs.androidx.lifecycle.viewmodel.compose)
+
+
+//    // LiveData Extensions para Compose
+//    implementation (libs.androidx.lifecycle.runtime.compose)
+//
+//    // ViewModel para Compose
+//    implementation (libs.androidx.lifecycle.viewmodel.compose)
+
 
 
 
