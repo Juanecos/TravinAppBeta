@@ -10,6 +10,7 @@ data class User(
     val firstName: String,
     val cellphone : String,
     val beforew: Double,
-    val afterw: Double
+    val afterw: Double,
+    val edited: Boolean = false
 
 )

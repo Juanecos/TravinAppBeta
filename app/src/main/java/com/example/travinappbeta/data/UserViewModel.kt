@@ -21,4 +21,17 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
             repository.addUser(user)
         }
     }
+    fun updateAfterWeight(userId: Int, newWeight: Double) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateAfterWeight(userId, newWeight)
+        }
+    }
+    fun updateEdited(userId: Int, newState : Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateEdited(userId, newState)
+        }
+    }
+    fun getUserById(userId: Int): LiveData<User> {
+        return repository.getUserById(userId)
+    }
 }

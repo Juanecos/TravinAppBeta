@@ -56,6 +56,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.ImeAction
+
 
 import androidx.compose.ui.tooling.preview.Preview
 
@@ -63,20 +65,59 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.foundation.rememberScrollState
+import androidx.navigation.NavType
+
 
 
 import androidx.activity.viewModels
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.text.KeyboardActionScope
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.text.style.TextOverflow
 
 import androidx.lifecycle.Observer
 import com.example.travinappbeta.data.User
 import com.example.travinappbeta.data.UserViewModel
+import kotlin.math.round
 
 
 
+fun getColor(name : String): Color {
+     when(name){
+         "Green1" -> {
+             return(Color(0xFF70C11D))
+         }
+         "Green2" -> {
+             return(Color(0xFF92D050))
+         }
+         "Green3" -> {
+             return(Color(0xFFB4E084))
+         }
+         "Green4" ->{
+             return(Color(0xFFD4EAD3))
+         }
 
-
-
+     }
+    return Color.Black
+}
 class MainActivity : ComponentActivity() {
 
     private val userViewModel: UserViewModel by viewModels()
@@ -100,76 +141,97 @@ fun AppNavigator(userViewModel: UserViewModel) {
 }
 @Composable
 fun InicioPantalla(navController: NavHostController){
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource(R.drawable.mi_imagen_fondo),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-
-        )
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.6f))
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ){
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
             Image(
-                painter = painterResource(R.drawable.logogreen),
-                contentDescription = "logo app",
+                painter = painterResource(R.drawable.mi_imagen_fondo),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+
+            )
+            Box(
                 modifier = Modifier
-                    .size(250.dp)
-                    .padding(0.dp),
-                //contentScale = ContentScale.FillWidth
-
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f))
             )
-            Text(
-                text = "Bienvenido",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Empieza tu prueba con TRAVIN, se tomarán unos datos y evaluaremos tu rendimiento",
-                fontSize = 18.sp,
-                color = Color.White,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Button(
-                onClick = {
-                    navController.navigate("principal")
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(112,192,31),
-                    contentColor = Color.Black
-
-                ),
-                shape = RoundedCornerShape(8.dp),
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                    .fillMaxSize()
+                    .padding(1.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
 
-                ) {
-                Text(text = "Empezar", fontSize = 18.sp)
+            ){
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(40.dp)
+
+                ){
+                    //Spacer(modifier = Modifier.height(50.dp))
+                    Image(
+                        painter = painterResource(R.drawable.logogreen),
+                        contentDescription = "logo app",
+                        modifier = Modifier
+                            .size(130.dp, 130.dp)
+                        //contentScale = ContentScale.FillWidth
+
+                    )
+                    Text(
+                        text = "Bienvenido",
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
+                    //Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Empieza tu prueba, se tomarán unos datos y evaluaremos tu rendimiento",
+                        fontSize = 18.sp,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
+                    //Spacer(modifier = Modifier.height(32.dp))
+                    Text(
+                        text = "TRAVIN Transformando vidas a través de la alimentación consciente",
+                        fontSize = 18.sp,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Button(
+                        onClick = {
+                            navController.navigate("principal")
+                        },
+//                    containerColor = Color(112,192,31),
+//                    contentColor = Color.Black
+                        colors = ButtonDefaults.buttonColors(
+                            getColor("Green1")
+
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+
+                        ) {
+                        Text(text = "Empezar", fontSize = 18.sp, color = Color.Black)
+                    }
+                    //Spacer(modifier = Modifier.height(32.dp))
+
+                    //Spacer(modifier = Modifier.height(100.dp))
+
+
+
+                }
             }
 
 
         }
 
-    }
 }
 
 
@@ -182,29 +244,35 @@ fun PrincipalPantalla(selectedTab: String , userViewModel: UserViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(getColor("Green2")),
                 title = {
-                    Image(
-                        painter = painterResource(R.drawable.logotravingreen2),
+
+                    Row (
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ){  Image(
+                        painter = painterResource(R.drawable.logotravindark),
                         contentDescription = "logo title",
                         modifier = Modifier
 
                             .padding(horizontal = 0.dp)
-                            .width(200.dp)
+                            .width(250.dp)
 
 
-                    )
+                    )}
+
                 },
             )
         },
         bottomBar = {
-            BottomAppBar {
+            BottomAppBar(containerColor= getColor("Green3")) {
                 NavigationBar(
                     modifier = Modifier.fillMaxSize(),
-                    containerColor = Color.Transparent
+                    containerColor = getColor("Green3")
                 ) {
                     NavigationBarItem(
                         selected = selectedTab == "new",
-                        label = { Text("Nueva prueba") },
+                        label = { Text("Agregar") },
                         icon = { Icon(Icons.Filled.Star, contentDescription = null) },
                         onClick = {
 
@@ -223,7 +291,7 @@ fun PrincipalPantalla(selectedTab: String , userViewModel: UserViewModel) {
                     )
                     NavigationBarItem(
                         selected = selectedTab == "more",
-                        label = { Text(selectedT) },
+                        label = { Text("Mas Info") },
                         icon = { Icon(Icons.Filled.Info, contentDescription = null) },
                         onClick = {navController2.navigate("more")
                             selectedT = "more"
@@ -249,10 +317,23 @@ fun PrincipalPantalla(selectedTab: String , userViewModel: UserViewModel) {
                 composable("result/{datosJson}") { backStackEntry ->
                     val datosJson = backStackEntry.arguments?.getString("datosJson") ?: ""
                     val datosMapa: Map<*, *>? = Gson().fromJson(datosJson, Map::class.java)
-                    Result(data = datosMapa)
+                    Result(navController2= navController2,data = datosMapa)
                 }
-                composable("register") { Register(userViewModel) }
-                composable("more") { More() }
+                composable("register") { Register(navController2,userViewModel) }
+
+                composable(
+                    route = "updateWeight/{userId}"
+                ) { backStackEntry ->
+                    val userId = backStackEntry.arguments?.getString("userId")
+                    val id = userId?.toIntOrNull()
+
+                    if (id != null) {
+                        UpdateWeightScreen(navController2 = navController2,userViewModel = userViewModel, userId = id)
+                    }
+                }
+
+
+                composable("more") { More(navController2) }
 
             }
 
@@ -262,15 +343,26 @@ fun PrincipalPantalla(selectedTab: String , userViewModel: UserViewModel) {
 
 
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewData(navController2: NavHostController, userViewModel: UserViewModel){
 
     var nombre by remember { mutableStateOf("") }
     var celular by remember { mutableStateOf("") }
     var pesoa by remember { mutableStateOf("") }
-    var pesob by remember { mutableStateOf("") }
-    //var data = mutableMapOf()
+
+    fun guardarDatos() {
+        val pesoAntes = convertDouble(pesoa)
+        val newUser = User(
+            firstName = nombre,
+            cellphone = celular,
+            beforew = pesoAntes,
+            afterw = pesoAntes
+        )
+        userViewModel.addUser(newUser)
+        navController2.navigate("register")
+    }
+
 
     Column(
         modifier = Modifier
@@ -294,8 +386,8 @@ fun NewData(navController2: NavHostController, userViewModel: UserViewModel){
             TextField(
             value = nombre,
             onValueChange = { nombre = it },
-            label = { Text("Nombre", modifier = Modifier.size(70.dp,25.dp)) },
-            //modifier = Modifier.fillMaxWidth()
+            colors = TextFieldDefaults.textFieldColors(containerColor = getColor("Green4")),
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
         )}
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -311,23 +403,24 @@ fun NewData(navController2: NavHostController, userViewModel: UserViewModel){
                     // Asignar el valor filtrado a la variable
                     celular = filteredInput
                 },
-                label = { Text("Celular") },
+                //label = { Text("Celular") },
                 modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                colors = TextFieldDefaults.textFieldColors(containerColor = getColor("Green4"))
             )
 
         }
-        Text(
-            text="Datos antes y despues de la actividad fisica:",
-            fontSize = 20.sp,
-            textAlign = TextAlign.Center
-        )
+//        Text(
+//            text="Datos antes y despues de la actividad fisica:",
+//            fontSize = 20.sp,
+//            textAlign = TextAlign.Center
+//        )
 
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ){
-            Text(text= "Peso antes", fontSize = 15.sp,modifier = Modifier.size(100.dp,25.dp))
+            Text(text= "Peso (Kg)", fontSize = 15.sp,modifier = Modifier.size(70.dp,25.dp))
             TextField(
                 value = pesoa,
                 onValueChange = { input ->
@@ -338,75 +431,24 @@ fun NewData(navController2: NavHostController, userViewModel: UserViewModel){
                         pesoa = filteredInput
                     }
                 },
-                label = { Text("Peso (kg)") },
                 modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+                colors = TextFieldDefaults.textFieldColors(containerColor = getColor("Green4")),
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { guardarDatos() })
 
             )
-
         }
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            Text(text= "Peso después", fontSize = 15.sp, modifier = Modifier.size(100.dp,25.dp))
-            TextField(
-                value = pesob,
-                onValueChange = { input ->
-                    // Filtrar para permitir solo dígitos y un solo punto decimal
-                    val filteredInput = input.filter { it.isDigit() || it == '.' }
-                    // Verificar si hay más de un punto decimal
-                    if (filteredInput.count { it == '.' } <= 1) {
-                        pesob = filteredInput
-                    }
-                },
-                label = { Text("Peso (kg)") },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-
-            )
-
-        }
-
-
-
-
         Button(
             onClick = {
-                val pesoAntes = convertDouble(pesoa)
-                val pesoDespues = convertDouble(pesob)
-
-                // Crear un objeto User
-                val newUser = User(
-                    firstName = nombre,
-                    cellphone = celular,
-                    beforew = pesoAntes,
-                    afterw = pesoDespues
-                )
-
-                // Guardar el usuario en la base de datos
-                userViewModel.addUser(newUser)
-
-
-                val data = mutableMapOf(
-                    "nombre" to nombre,
-                    "celular" to celular,
-                    "pesoa" to pesoa,
-                    "pesob" to pesob
-                )
-                val datosJson = Gson().toJson(data)
-
-
-
-                navController2.navigate("result/$datosJson")
-
-                //resultado = "Nombre: $nombre, Celular: $celular, Peso: $peso"
+                guardarDatos()
             },
-            enabled = nombre != "" && celular != "" && pesoa != "" && pesob != ""
+            enabled = nombre != "" && celular != "" && pesoa != "",
+            colors = ButtonDefaults.buttonColors(
+                getColor("Green1")
+            )
+        ) {
 
-            ) {
-
-            Text(text = "Calcular ", fontSize = 18.sp)
+            Text(text = "Guardar ", fontSize = 18.sp)
         }
 
 
@@ -423,7 +465,7 @@ fun verify(data: Map<*, *>?, key : String): String {
     return data?.get(key) as? String ?: ""
 }
 @Composable
-fun Result(data: Map<*, *>?){
+fun Result(navController2: NavHostController,data: Map<*, *>?){
 
 
     val nombre = verify(data= data, key = "nombre")
@@ -448,24 +490,76 @@ fun Result(data: Map<*, *>?){
         else -> " mayor al 2%"
     }
 
+
+
+
     val recomendacion: String = when (perdida) {
         "0-1%" -> {
-            "pérdida de peso dentro de lo esperable, sin impacto sobre el rendimiento."
+            "Pérdida de peso dentro de lo esperable, sin impacto sobre el rendimiento."
         }
         "1-2%" -> {
-            "pérdida de peso aceptable, con impacto leve sobre el rendimiento"
+            "Pérdida de peso aceptable, con impacto leve sobre el rendimiento"
         }
         else -> {
-            "pérdida de peso desaconsejada, con impacto negativo sobre el rendimiento"
+            "Pérdida de peso desaconsejada, con impacto negativo sobre el rendimiento"
         }
     }
 
 
     if ( perdida!= "Incorrecto"){
         Column {
-            Text(text = "Tu perdida de peso fue de: $indice2")
-            Text(text="Te encuentras dentro del $perdida, $recomendacion",
-                fontSize = 12.sp)
+            Text(text = "Tu perdida de peso fue de:", fontSize = 25.sp, textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth())
+            Text(text = "$indice2%", fontSize = 27.sp, textAlign = TextAlign.Center, fontWeight = FontWeight.Bold,
+                modifier = Modifier.fillMaxWidth())
+            Text(text="$nombre: Te encuentras dentro del $perdida", fontSize = 20.sp)
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Image(
+                painter = painterResource(
+                    when (perdida) {
+                    "0-1%" -> {
+                        R.drawable.resulthigh
+
+                    }
+                    "1-2%" -> {
+                        R.drawable.resultmid
+                    }
+                    else -> {
+                        R.drawable.resultlow
+
+                    }
+                }
+                ),
+                contentDescription = null,
+
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .size(100.dp, 200.dp),
+                alignment = Alignment.Center
+
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(text= recomendacion, fontSize = 20.sp)
+            Spacer(modifier = Modifier.height(10.dp))
+            Row (
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ){
+                Button(
+                    onClick = { navController2.navigate("more") },
+                    colors = ButtonDefaults.buttonColors(getColor("Green1"))
+                ) {
+                    Text("Seguir ➜")
+
+                }
+            }
+
+
+
+
+
+
         }
 
     } else
@@ -481,19 +575,22 @@ fun Result(data: Map<*, *>?){
 }
 
 @Composable
-fun Register(userViewModel: UserViewModel) {
+fun Register(navController2: NavHostController,userViewModel: UserViewModel) {
     // Observar los datos de la base de datos como un estado
     val userList by userViewModel.readAllData.observeAsState(initial = emptyList())
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            //jacer esto scrollabl4
+            .verticalScroll(state = scrollState),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Registros de la Base de Datos:",
+            text = "Registros",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
@@ -505,44 +602,344 @@ fun Register(userViewModel: UserViewModel) {
             Text("No hay registros disponibles.")
         } else {
             userList.forEach { user ->
-                UserRow(user)
+                UserRow(user= user, navController2 = navController2)
+
             }
         }
     }
 }
 
 @Composable
-fun UserRow(user: User) {
+fun UserRow(user: User, navController2: NavHostController) {
+    val userId = user.id
+    var backgroundC = Color.Black
+
+    if (user.edited){
+        backgroundC = getColor("Green1")
+    }
+
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
-            .background(Color.LightGray, shape = RoundedCornerShape(8.dp))
             .padding(8.dp),
+            //.background(Color.LightGray, shape = RoundedCornerShape(8.dp)),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column {
-            Text("Nombre: ${user.firstName}")
-            Text("Celular: ${user.cellphone}")
-            Text("Peso Antes: ${user.beforew} kg")
-            Text("Peso Después: ${user.afterw} kg")
+
+
+        Button(
+            onClick = {
+                navController2.navigate("updateWeight/$userId")
+            },
+            colors = ButtonDefaults.buttonColors(backgroundC),
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp)
+        )
+        {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = user.firstName,
+                    modifier = Modifier
+                        .sizeIn(maxWidth = 150.dp)
+                    , fontSize = 16.sp, softWrap = true,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Column(horizontalAlignment = Alignment.End) {
+                    //Text(text = "$userId", fontSize = 12.sp, softWrap = false, textAlign = TextAlign.End)
+                    Text(text = user.cellphone, fontSize = 12.sp, softWrap = false, textAlign = TextAlign.End)
+                    Text(text = "${user.beforew} kg", fontSize = 12.sp, softWrap = false, textAlign = TextAlign.End)
+                    //Text(text = "${user.edited} kg", fontSize = 12.sp, softWrap = false, textAlign = TextAlign.End)
+
+                }
+
+
+            }
+
+
+        }
+//            Button(onClick = {}) {
+//                Text("Nombre: ${user.firstName}")
+//                Text("Celular: ${user.cellphone}")
+//                Text("Peso Inicial: ${user.beforew} kg")
+//                Text("Peso Final: ${user.afterw} kg")
+//
+//            }
+
+    }
+}
+
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UpdateWeightScreen(navController2: NavHostController,userViewModel: UserViewModel, userId: Int) {
+    // Observar los datos del usuario
+    val user by userViewModel.getUserById(userId).observeAsState()
+
+    var alert by remember { mutableStateOf("") }
+    var newWeight by remember { mutableStateOf("") }
+
+    fun updateData(newWeight: String, user:User?){
+
+        val weightfinal = newWeight.toDoubleOrNull()
+
+
+        if (user != null) {
+            if (weightfinal != null && weightfinal <= user.beforew) {
+                userViewModel.updateAfterWeight(userId, weightfinal)
+                userViewModel.updateEdited(userId, true)
+
+                val data = mutableMapOf(
+                    "nombre" to user.firstName,
+                    "celular" to user.cellphone,
+                    "pesoa" to "${user.beforew}",
+                    "pesob" to newWeight
+                )
+                val datosJson = Gson().toJson(data)
+                navController2.navigate("result/$datosJson")
+            } else {
+                alert =
+                    "El peso actual no debe ser mayor que el peso inicial ... a menos que hayas ido a comer"
+
+            }
+        }
+    }
+
+
+
+
+    // Mostrar los datos del usuario solo si están disponibles
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        user?.let { it ->
+
+
+
+            Text(text = it.firstName, textAlign = TextAlign.Center, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+            Text(text = it.cellphone, fontSize = 20.sp)
+            Text(text = "${it.beforew} kg", fontSize = 20.sp)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Input para el nuevo peso
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Text(text= "Peso Final (Kg)", fontSize = 15.sp,modifier = Modifier.size(105.dp,25.dp))
+                TextField(
+                    value = newWeight,
+                    onValueChange = { input ->
+                        // Filtrar para permitir solo dígitos y un solo punto decimal
+                        val filteredInput = input.filter { it.isDigit() || it == '.' }
+                        // Verificar si hay más de un punto decimal
+                        if (filteredInput.count { it == '.' } <= 1) {
+                            newWeight = filteredInput
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.textFieldColors(containerColor = getColor("Green4")) ,
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { updateData(newWeight, it) })
+
+                )
+
+            }
+
+             if (newWeight ==""){
+                 alert = ""
+             }
+            Text(text = alert, color =  Color.Red)
+
+
+            Button(
+                colors = ButtonDefaults.buttonColors(
+                getColor("Green1")
+            ),
+                onClick = {
+                    updateData(newWeight,user)
+                },
+                enabled = newWeight != "",
+            )
+            {
+                Text("Calcular")
+            }
+
+        } ?: run {
+            // Mostrar un mensaje si no se encuentra el usuario
+            Text("Usuario no encontrado. Id: $userId")
+            
         }
     }
 }
 
+
 @Composable
-fun More(){
-    Text("More, the QR here")
-}
-@Composable
-fun Test(){
-    //ver como hacer el redondeo de 2 cifras
-    val indice2 = (Math.round(3.33333*100))/100.00F
+fun More(navController2: NavHostController){
 
     Column {
-        Text("$indice2", modifier = Modifier.padding(16.dp))
+
+        Text(text = "Transformando vidas a través de la alimentación consciente", fontSize = 20.sp, textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth())
+
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(text = "Siguenos en Instagram!!", fontSize = 20.sp, textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth())
+        Spacer(modifier = Modifier.height(20.dp))
+        Image(
+            painter = painterResource(R.drawable.arrowdown),
+            contentDescription = null,
+
+            modifier = Modifier
+                .fillMaxWidth()
+                .size(20.dp, 20.dp),
+            alignment = Alignment.Center
+
+        )
+        Image(
+            painter = painterResource(R.drawable.arrowdown),
+            contentDescription = null,
+
+            modifier = Modifier
+                .fillMaxWidth()
+                .size(20.dp, 20.dp),
+            alignment = Alignment.Center
+
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+
+
+        Image(
+            painter = painterResource(R.drawable.codigoqr),
+            contentDescription = null,
+
+            modifier = Modifier
+                .fillMaxWidth()
+                .size(300.dp, 300.dp),
+            alignment = Alignment.Center
+
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Row (
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ){
+            Button(
+                onClick = { navController2.navigate("new") },
+                colors = ButtonDefaults.buttonColors(getColor("Green1"))
+            ) {
+                Text("Terminar tour ")
+
+            }
+        }
     }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Test(){
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(R.drawable.mi_imagen_fondo),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.6f))
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+
+        ){
+            Column(
+                modifier = Modifier
+                    .padding(50.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(40.dp)
+
+            ){
+                //Spacer(modifier = Modifier.height(50.dp))
+                Image(
+                    painter = painterResource(R.drawable.logogreen),
+                    contentDescription = "logo app",
+                    modifier = Modifier
+                        .size(180.dp, 180.dp)
+                    //contentScale = ContentScale.FillWidth
+
+                )
+                Text(
+                    text = "Bienvenido",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+                //Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Empieza tu prueba, se tomarán unos datos y evaluaremos tu rendimiento",
+                    fontSize = 18.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+                //Spacer(modifier = Modifier.height(32.dp))
+                Text(
+                    text = "TRAVIN Transformando vidas a través de la alimentación consciente",
+                    fontSize = 18.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+
+                Button(
+                    onClick = {
+
+                    },
+
+                    colors = ButtonDefaults.buttonColors(
+                        getColor("Green1")
+
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+
+                    ) {
+                    Text(text = "Empezar", fontSize = 18.sp, color = Color.Black)
+                }
+                //Spacer(modifier = Modifier.height(32.dp))
+
+                //Spacer(modifier = Modifier.height(100.dp))
+
+
+
+            }
+        }
+
+
+    }
+
+
 }
 @Preview(showBackground = true)
 @Composable
