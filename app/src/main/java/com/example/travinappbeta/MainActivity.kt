@@ -358,22 +358,26 @@ fun NewData(navController2: NavHostController, userViewModel: UserViewModel){
         )
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
         ){
 
             Text(text ="Nombre: ", fontSize = 15.sp, modifier = Modifier.size(70.dp,25.dp))
 
             TextField(
-            value = nombre,
-            onValueChange = { nombre = it },
-            colors = TextFieldDefaults.textFieldColors(containerColor = getColor("Green4")),
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
-        )}
+                modifier = Modifier.fillMaxWidth(),
+                value = nombre,
+                onValueChange = { nombre = it },
+                colors = TextFieldDefaults.textFieldColors(containerColor = getColor("Green4")),
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+            )
+        }
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         )
-        {   Text(text= "Celular", fontSize = 15.sp, modifier = Modifier.size(70.dp,25.dp))
+        {
+            Text(text= "Celular", fontSize = 15.sp, modifier = Modifier.size(70.dp,25.dp))
 
             TextField(
                 value = celular,
